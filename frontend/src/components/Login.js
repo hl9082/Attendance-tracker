@@ -3,39 +3,38 @@
  * @author Huy Le (hl9082)
  * @description login page.
  */
+// src/components/Login.js
+
 import React, { useState } from 'react';
 
-const Login = ({ setToken }) => {
-  const [username, setUsername] = useState('');
+function Login({ setToken }) {
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleLogin = (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    // Example: Check login and set token (usually you'd call an API here)
-    if (username && password) {
-      setToken('someToken'); // Set the token (this should come from an actual authentication system)
-    }
+    // Here you'd typically make an API request to verify credentials
+    const token = 'mock_token_from_login'; // Mock token from a successful login
+    setToken(token); // Pass the token to the parent component (App)
   };
 
   return (
-    <div>
-      <form onSubmit={handleLogin}>
-        <input
-          type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <button type="submit">Login</button>
-      </form>
-    </div>
+    <form onSubmit={handleSubmit}>
+      <input
+        type="email"
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+      <button type="submit">Login</button>
+    </form>
   );
-};
+}
 
 export default Login;
