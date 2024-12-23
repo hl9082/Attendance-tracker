@@ -11,7 +11,7 @@ import Attendance from './components/Attendance'; // Assuming Attendance is in c
 
 function App() {
   const [token, setToken] = useState(null); // Token to track logged-in status
-  const [isFacialRecognition, setIsFacialRecognition] = useState(false); // Track facial recognition flow
+  const [isFacialRecognition, setIsFacialRecognition] = useState(true); // Track facial recognition flow
 
   // Handle login success (this function might be triggered by the Login or FacialRecognition component)
   const handleLoginSuccess = (token) => {
