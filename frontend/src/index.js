@@ -3,7 +3,7 @@
  * @description Entry point for react app
  */
 import React from 'react';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client';
 import './index.css';  // Import global CSS styles (if any)
 import App from './App';  // Import the root App component
 import reportWebVitals from './reportWebVitals';  // Optional for measuring performance (if needed)
