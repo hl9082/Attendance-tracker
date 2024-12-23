@@ -1,6 +1,8 @@
+// src/components/FacialRecognition.js
+
 import React, { useState } from 'react';
 
-function FaceRecognition() {
+function FacialRecognition({ onSuccess }) {
   const [image, setImage] = useState(null);
 
   const handleImageChange = (e) => {
@@ -18,15 +20,20 @@ function FaceRecognition() {
 
     const data = await response.json();
     console.log('Facial Recognition Result:', data);
+
+    if (data.success) {
+      const token = 'mock_token_from_face_recognition'; // Mock token from facial recognition
+      onSuccess(token); // Pass the token to the parent component (App)
+    }
   };
 
   return (
     <div>
       <input type="file" onChange={handleImageChange} />
       <button onClick={handleSubmit}>Submit</button>
-      <img src={image} alt="Uploaded Preview" />
+      {image && <img src={image} alt="Uploaded Preview" />}
     </div>
   );
 }
 
-export default FaceRecognition;
+export default FacialRecognition;
