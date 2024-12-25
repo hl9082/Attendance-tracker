@@ -12,9 +12,9 @@ import reportWebVitals from './reportWebVitals';  // Optional for measuring perf
 ReactDOM.createRoot(
   document.getElementById('root')
 ).render(
-  //<React.StrictMode> remove temporarily for debugging
+  <React.StrictMode> 
     <App />
-  //</React.StrictMode>
+  </React.StrictMode>
 );
 
 // Optional: Log performance metrics (for debugging or optimization)
