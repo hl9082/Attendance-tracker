@@ -9,7 +9,7 @@ import App from './App';  // Import the root App component
 import reportWebVitals from './reportWebVitals';  // Optional for measuring performance (if needed)
 
 // The root of the application where the React app will be rendered
-ReactDOM.render(
+ReactDOM.createRoot(
   <React.StrictMode>
     <App />  {/* The root App component */}
   </React.StrictMode>,
