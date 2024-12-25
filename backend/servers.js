@@ -1,72 +1,63 @@
 const express = require('express');
-const multer = require('multer');
-const faceapi = require('face-api.js');
-const bodyParser = require('body-parser');
-const mongoose = require('mongoose');
-
+const cors = require('cors');
+const fs = require('fs');
+const path = require('path');
 const app = express();
-const port = 3000;
 
-// Middleware
-app.use(bodyParser.json());
-app.use(express.static('public')); // To serve uploaded images (optional)
+// Use CORS for cross-origin requests
+app.use(cors());
 
-// Connect to MongoDB (replace with your DB URL)
-mongoose.connect('mongodb://localhost:27017/attendanceApp', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+// For parsing JSON bodies
+app.use(express.json());
 
-// Attendance Model
-const Attendance = mongoose.model('Attendance', new mongoose.Schema({
-  name: String,
-  date: { type: Date, default: Date.now },
-  imageUrl: String,
-}));
+// Path to store the attendance data file
+const ATTENDANCE_FILE_PATH = path.join(__dirname, 'attendance.json');
 
-// File upload configuration (multer)
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/');
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + '-' + file.originalname);
-  },
-});
-const upload = multer({ storage: storage });
-
-// Endpoint to handle facial recognition from uploaded image
-app.post('/recognize', upload.single('image'), async (req, res) => {
-  const image = req.file;
-  if (!image) {
-    return res.status(400).json({ error: 'No image uploaded' });
+// Function to read attendance data from a file
+function readAttendanceData() {
+  if (fs.existsSync(ATTENDANCE_FILE_PATH)) {
+    const data = fs.readFileSync(ATTENDANCE_FILE_PATH, 'utf8');
+    return JSON.parse(data);
   }
+  return [];
+}
 
-  // Perform facial recognition here (you may need to load face-api.js models)
-  // Placeholder for facial recognition (simplified)
-  const detectedFaces = await faceapi.detectAllFaces(image.path);
-  if (detectedFaces.length > 0) {
-    const token = 'mock_token_for_recognized_user'; // Token from successful facial recognition
-    return res.json({ success: true, token });
-  } else {
-    return res.status(400).json({ error: 'No faces detected' });
-  }
-});
+// Function to write attendance data to a file
+function writeAttendanceData(records) {
+  fs.writeFileSync(ATTENDANCE_FILE_PATH, JSON.stringify(records, null, 2), 'utf8');
+}
 
-// Attendance endpoint (store attendance records)
-app.post('/attendance', async (req, res) => {
+// Endpoint to register attendance (POST)
+app.post('/attendance', (req, res) => {
   const { name, imageUrl } = req.body;
+
   if (!name || !imageUrl) {
-    return res.status(400).json({ error: 'Name and image URL required' });
+    return res.status(400).json({ success: false, message: 'Missing required fields' });
   }
 
-  const attendance = new Attendance({ name, imageUrl });
-  await attendance.save();
-  res.status(200).json({ success: true, message: 'Attendance recorded' });
+  const attendanceRecords = readAttendanceData();
+
+  const attendanceRecord = { name, imageUrl, timestamp: new Date().toISOString() };
+
+  // Add the new record to the list
+  attendanceRecords.push(attendanceRecord);
+
+  // Write the updated list back to the file
+  writeAttendanceData(attendanceRecords);
+
+  return res.status(200).json({ success: true, message: 'Attendance recorded!', attendanceRecord });
 });
 
-// Start server
-app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
+// Endpoint to fetch all attendance records (GET)
+app.get('/attendance', (req, res) => {
+  const attendanceRecords = readAttendanceData();
+  return res.status(200).json({ success: true, data: attendanceRecords });
 });
+
+// Start the server
+const PORT = 3000;
+app.listen(PORT, () => {
+  console.log(`Server is running at http://localhost:${PORT}`);
+});
+
 
