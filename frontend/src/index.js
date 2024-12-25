@@ -10,10 +10,11 @@ import reportWebVitals from './reportWebVitals';  // Optional for measuring perf
 
 // The root of the application where the React app will be rendered
 ReactDOM.createRoot(
-  <React.StrictMode>
-    <App />  {/* The root App component */}
-  </React.StrictMode>,
-  document.getElementById('root') // This is where the React app will mount in index.html
+  document.getElementById('root')
+).render(
+  //<React.StrictMode> remove temporarily for debugging
+    <App />
+  //</React.StrictMode>
 );
 
 // Optional: Log performance metrics (for debugging or optimization)

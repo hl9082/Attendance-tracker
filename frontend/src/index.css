@@ -1,19 +1,36 @@
 /* src/index.css */
 
-/* Basic reset */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
+/* src/index.css or src/App.css */
 body {
   font-family: Arial, sans-serif;
+  padding: 0;
+  margin: 0;
   background-color: #f0f0f0;
-  color: #333;
 }
 
-/* You can add more custom styles here */
-h1 {
-  color: #007bff;
+.App {
+  text-align: center;
+  padding: 20px;
+}
+
+button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+  margin: 5px;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+input {
+  padding: 8px;
+  margin: 5px;
+}
+
+h1, h2, h3 {
+  color: #333;
 }
