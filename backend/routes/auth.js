@@ -10,17 +10,10 @@ router.post('/register', async (req, res) => {
   const { username, password, biometrics } = req.body;
 
   try {
-    // Hashing password and biometric data
     const hashedPassword = await bcrypt.hash(password, 10);
     const biometricHash = await bcrypt.hash(biometrics, 10); // Hashing biometric data
 
-    const user = new User({
-      username,
-      password: hashedPassword,
-      biometrics: biometricHash, // Store hashed biometric data
-    });
 
-    await user.save();
     res.status(201).json({ message: 'User registered successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Error registering user', error });
@@ -32,7 +25,7 @@ router.post('/login', async (req, res) => {
   const { username, password } = req.body;
 
   try {
-    const user = await User.findOne({ username });
+    const user = await User.findOne({ where: { username } });
 
     if (!user) {
       return res.status(400).json({ message: 'Invalid credentials' });
@@ -44,7 +37,7 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
     res.json({ token });
   } catch (error) {
@@ -53,4 +46,3 @@ router.post('/login', async (req, res) => {
 });
 
 module.exports = router;
-
