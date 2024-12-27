@@ -1,9 +1,25 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const sequelize = require('../app').sequelize; // Import Sequelize instance from app.js
 
-const UserSchema = new mongoose.Schema({
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-  biometrics: { type: String, required: true }, // Store a hashed version of biometric data
+// Define the User model
+const User = sequelize.define('User', {
+  email: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true,
+  },
+  password: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  biometrics: {
+    type: DataTypes.STRING,
+    allowNull: false, // Store hashed biometric data
+  }
+}, {
+  tableName: 'users', // Table name in SQLite
+  timestamps: true, // Sequelize will automatically add createdAt and updatedAt fields
 });
 
-module.exports = mongoose.model('User', UserSchema);
+module.exports = User;
+
