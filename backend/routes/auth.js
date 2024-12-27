@@ -10,8 +10,15 @@ router.post('/register', async (req, res) => {
   const { username, password, biometrics } = req.body;
 
   try {
+    // Hashing password and biometric data
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = new User({ username, password: hashedPassword, biometrics });
+    const biometricHash = await bcrypt.hash(biometrics, 10); // Hashing biometric data
+
+    const user = new User({
+      username,
+      password: hashedPassword,
+      biometrics: biometricHash, // Store hashed biometric data
+    });
 
     await user.save();
     res.status(201).json({ message: 'User registered successfully' });
@@ -46,3 +53,4 @@ router.post('/login', async (req, res) => {
 });
 
 module.exports = router;
+
