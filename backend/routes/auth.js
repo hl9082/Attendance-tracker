@@ -1,18 +1,23 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+const User = require('../models/User');  // Import the User model
 
 const router = express.Router();
 
 // Register
 router.post('/register', async (req, res) => {
-  const { username, password, biometrics } = req.body;
+  const { email, password, biometrics } = req.body;
 
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
     const biometricHash = await bcrypt.hash(biometrics, 10); // Hashing biometric data
 
+    const user = await User.create({
+      email,
+      password: hashedPassword,
+      biometrics: biometricHash,
+    });
 
     res.status(201).json({ message: 'User registered successfully' });
   } catch (error) {
@@ -22,10 +27,10 @@ router.post('/register', async (req, res) => {
 
 // Login
 router.post('/login', async (req, res) => {
-  const { username, password } = req.body;
+  const { email, password } = req.body;
 
   try {
-    const user = await User.findOne({ where: { username } });
+    const user = await User.findOne({ where: { email } });
 
     if (!user) {
       return res.status(400).json({ message: 'Invalid credentials' });
