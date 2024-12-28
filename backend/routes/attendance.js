@@ -1,4 +1,6 @@
+// attendance.js
 const express = require('express');
+const bcrypt = require('bcryptjs');  // Ensure bcrypt is imported
 const jwt = require('jsonwebtoken');
 const Attendance = require('../models/Attendance');
 const User = require('../models/User');
@@ -77,3 +79,4 @@ router.post('/clock-out', authenticate, async (req, res) => {
 });
 
 module.exports = router;
+
