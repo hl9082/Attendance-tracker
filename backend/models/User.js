@@ -1,26 +1,41 @@
+// _models/User.js
 const { DataTypes } = require('sequelize');
-const { sequelize } = require('../app');  // Correctly import sequelize from app.js
+const sequelize = require('./Database');  // Import the sequelize instance
 
-// Define the User model
 const User = sequelize.define('User', {
+  student_id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true,
+  },
+  first_name: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  last_name: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  dob: {
+    type: DataTypes.DATE,
+    allowNull: true,
+  },
   email: {
     type: DataTypes.STRING,
     allowNull: false,
     unique: true,
   },
-  password: {
-    type: DataTypes.STRING,
-    allowNull: false,
+  biometric_data: {
+    type: DataTypes.BLOB,
+    allowNull: true,
   },
-  biometrics: {
-    type: DataTypes.STRING,
-    allowNull: false, // Store hashed biometric data
-  }
-}, {
-  tableName: 'users', // Table name in SQLite
-  timestamps: true, // Sequelize will automatically add createdAt and updatedAt fields
+  created_at: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW,
+  },
 });
 
 module.exports = User;
+
 
 
