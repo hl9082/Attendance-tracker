@@ -1,5 +1,5 @@
 // src/components/VoiceRecognition.js
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 
 const VoiceRecognition = ({ onVoiceSuccess }) => {
