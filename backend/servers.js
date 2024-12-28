@@ -9,6 +9,11 @@ app.use(cors());
 // For parsing JSON bodies
 app.use(express.json());
 
+// Simple root route to check if server is running
+app.get('/', (req, res) => {
+  res.send('Welcome to the Attendance API!');
+});
+
 // Endpoint to register attendance (POST)
 app.post('/attendance', async (req, res) => {
   const { student_id, status } = req.body; // Assuming student_id and status are sent in the request body
