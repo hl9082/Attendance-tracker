@@ -86,18 +86,27 @@ const createUserFromFile = async (filePath) => {
 
 // Function to create attendance from input
 const createAttendanceFromInput = async () => {
-  rl.question('Enter User ID for attendance: ', async (userId) => {
-    rl.question('Enter attendance status (IN/OUT): ', async (status) => {
+  rl.question('Enter User ID for attendance: ', async (studentId) => {
+    rl.question('Enter attendance status (Present, Absent, Late): ', async (status) => {
+      if (!['Present', 'Absent', 'Late'].includes(status)) {
+        console.log('Invalid status. Please enter either Present, Absent, or Late.');
+        rl.close();
+        return;
+      }
+      
       try {
-        // Creating an attendance record linked to a user
+        // Creating an attendance record linked to a student
         const attendance = await Attendance.create({
-          userId,
-          status,
+          student_id: studentId, // Link to the correct student (user)
+          status: status,         // The status: Present, Absent, or Late
+          date: new Date(),       // Current date
+          time_in: new Date(),    // Current time for clock-in
         });
         console.log('Attendance recorded:', attendance);
         rl.close();
       } catch (error) {
         console.error('Error creating attendance:', error);
+        rl.close();
       }
     });
   });
