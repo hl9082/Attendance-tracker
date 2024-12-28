@@ -1,33 +1,38 @@
+// _models/Attendance.js
 const { DataTypes } = require('sequelize');
-const sequelize = require('../app').sequelize;
-const User = require('./User'); // Import User model
+const sequelize = require('./Database');  // Import the sequelize instance
+const User = require('./User');  // Import the User model
 
-// Define the Attendance model
 const Attendance = sequelize.define('Attendance', {
-  userId: {
+  attendance_id: {
     type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: User,  // Reference to the User model
-      key: 'id',
-    },
+    primaryKey: true,
+    autoIncrement: true,
   },
-  status: {
-    type: DataTypes.ENUM('IN', 'OUT'),
+  date: {
+    type: DataTypes.DATE,
     allowNull: false,
   },
-  timestamp: {
+  time_in: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,
   },
-}, {
-  tableName: 'attendances',
-  timestamps: false, // No need for createdAt and updatedAt
+  time_out: {
+    type: DataTypes.DATE,
+    allowNull: true,
+  },
+  status: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    validate: {
+      isIn: [['Present', 'Absent', 'Late']],
+    },
+  },
 });
 
-// Establish relationship between User and Attendance (One-to-Many)
-User.hasMany(Attendance, { foreignKey: 'userId' });
-Attendance.belongsTo(User, { foreignKey: 'userId' });
+// Foreign key relationship with the User model
+Attendance.belongsTo(User, { foreignKey: 'student_id' });
 
 module.exports = Attendance;
+
 
