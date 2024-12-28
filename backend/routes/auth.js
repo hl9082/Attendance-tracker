@@ -33,7 +33,7 @@ router.post('/register', async (req, res) => {
 
 // Login
 router.post('/login', async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, biometrics } = req.body;
 
   try {
     const user = await User.findOne({ where: { email } });
@@ -42,9 +42,10 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
+    const isPasswordMatch = await bcrypt.compare(password, user.password);
+    const isBiometricMatch = await bcrypt.compare(biometrics, user.biometrics); // Verify biometrics
 
-    if (!isMatch) {
+    if (!isPasswordMatch || !isBiometricMatch) {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
