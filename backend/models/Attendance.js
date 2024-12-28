@@ -12,10 +12,11 @@ const Attendance = sequelize.define('Attendance', {
   date: {
     type: DataTypes.DATE,
     allowNull: false,
+    defaultValue: DataTypes.NOW, // Default to current date/time if not provided
   },
   time_in: {
     type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW,
+    defaultValue: DataTypes.NOW, // Default to current time if not provided
   },
   time_out: {
     type: DataTypes.DATE,
@@ -25,14 +26,15 @@ const Attendance = sequelize.define('Attendance', {
     type: DataTypes.STRING,
     allowNull: false,
     validate: {
-      isIn: [['Present', 'Absent', 'Late']],
+      isIn: [['Present', 'Absent', 'Late']], // Validate status values
     },
   },
 });
 
 // Foreign key relationship with the User model
-Attendance.belongsTo(User, { foreignKey: 'student_id' });
+Attendance.belongsTo(User, { foreignKey: 'student_id' });  // Assumes User has 'student_id'
 
 module.exports = Attendance;
+
 
 
