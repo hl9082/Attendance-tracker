@@ -1,3 +1,4 @@
+// auth.js
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -10,6 +11,11 @@ router.post('/register', async (req, res) => {
   const { email, password, biometrics } = req.body;
 
   try {
+    const existingUser = await User.findOne({ where: { email } });
+    if (existingUser) {
+      return res.status(400).json({ message: 'Email already in use' });
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
     const biometricHash = await bcrypt.hash(biometrics, 10); // Hashing biometric data
 
@@ -51,3 +57,4 @@ router.post('/login', async (req, res) => {
 });
 
 module.exports = router;
+
