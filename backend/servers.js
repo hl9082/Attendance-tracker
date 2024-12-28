@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { Attendance } = require('./models');  // Import Attendance model from Sequelize
+const { Attendance } = require('./models/Attendance');  // Import Attendance model from Sequelize
 const app = express();
 
 // Use CORS for cross-origin requests
