@@ -3,15 +3,111 @@
  * @author Huy Le
  * @description attendance page
  */
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import './Attendance.css'; // Add your custom styles
 
-const Attendance = ({ token }) => {
+function Attendance({ token }) {
+  // Initialize state for attendance list from localStorage or an empty array
+  const [attendanceList, setAttendanceList] = useState(() => {
+    const savedAttendance = localStorage.getItem('attendance');
+    return savedAttendance ? JSON.parse(savedAttendance) : [];
+  });
+
+  const [name, setName] = useState('');
+  const [attendanceDate, setAttendanceDate] = useState('');
+
+    // UseEffect to react to token changes (for example, you might want to fetch something when token changes)
+  useEffect(() => {
+    if (!token) {
+      alert('Please login to mark attendance.');
+    }
+  }, [token]); // Dependency on token - runs only when token changes
+
+  // Handle name input change
+  const handleNameChange = (event) => {
+    setName(event.target.value);
+  };
+
+  // Handle date input change
+  const handleDateChange = (event) => {
+    setAttendanceDate(event.target.value);
+  };
+
+  // Submit the new attendance record
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    if (name && attendanceDate) {
+      const newAttendance = {
+        name: name,
+        date: attendanceDate,
+        id: Date.now(),
+      };
+
+      const updatedAttendanceList = [...attendanceList, newAttendance];
+      setAttendanceList(updatedAttendanceList);
+
+      // Persist updated attendance to localStorage
+      localStorage.setItem('attendance', JSON.stringify(updatedAttendanceList));
+
+      // Clear the input fields
+      setName('');
+      setAttendanceDate('');
+    } else {
+      alert('Please enter valid information.');
+    }
+  };
+
+  // Delete an attendance record
+  const handleDelete = (id) => {
+    const updatedAttendance = attendanceList.filter((attendance) => attendance.id !== id);
+    setAttendanceList(updatedAttendance);
+
+    // Persist updated attendance to localStorage
+    localStorage.setItem('attendance', JSON.stringify(updatedAttendance));
+  };
+
   return (
-    <div>
-      <h1>Attendance Page</h1>
-      <p>Authenticated with token: {token}</p>
+    <div className="attendance-container">
+      <h2 className="attendance-title">Mark Attendance</h2>
+
+      <form className="attendance-form" onSubmit={handleSubmit}>
+        <input
+          type="text"
+          value={name}
+          onChange={handleNameChange}
+          placeholder="Enter Name"
+          className="attendance-input"
+          required
+        />
+        <input
+          type="date"
+          value={attendanceDate}
+          onChange={handleDateChange}
+          className="attendance-input"
+          required
+        />
+        <button type="submit" className="attendance-button">
+          Mark Attendance
+        </button>
+      </form>
+
+      <h3 className="attendance-list-title">Attendance Records:</h3>
+      <ul className="attendance-list">
+        {attendanceList.map((attendance) => (
+          <li key={attendance.id} className="attendance-item">
+            <span>{attendance.name} - {attendance.date}</span>
+            <button
+              className="delete-button"
+              onClick={() => handleDelete(attendance.id)}
+            >
+              Delete
+            </button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
-};
+}
 
 export default Attendance;
+
