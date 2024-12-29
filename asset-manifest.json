@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/hl9082/Attendance-tracker/static/css/main.7ebbfcf9.css",
+    "main.js": "/hl9082/Attendance-tracker/static/js/main.f0b3018e.js",
+    "index.html": "/hl9082/Attendance-tracker/index.html",
+    "main.7ebbfcf9.css.map": "/hl9082/Attendance-tracker/static/css/main.7ebbfcf9.css.map",
+    "main.f0b3018e.js.map": "/hl9082/Attendance-tracker/static/js/main.f0b3018e.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.7ebbfcf9.css",
+    "static/js/main.f0b3018e.js"
+  ]
+}
