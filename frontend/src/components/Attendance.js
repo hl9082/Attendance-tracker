@@ -23,7 +23,7 @@ function Attendance({ token }) {
     }
 
      // Fetch attendance data from the backend (use your Localtunnel URL here)
-    fetch('https://seven-llamas-wear.loca.lt/api/attendance') // Replace with your Localtunnel URL
+    fetch('https://grumpy-lizards-create.loca.lt//api/attendance') // Replace with your Localtunnel URL
       .then((response) => response.json())
       .then((data) => setAttendanceList(data))
       .catch((error) => console.error('Error fetching attendance:', error));
@@ -51,7 +51,7 @@ function Attendance({ token }) {
       };
 
       // Send the new attendance to the backend
-      fetch('https://seven-llamas-wear.loca.lt/api/attendance', {
+      fetch('https://grumpy-lizards-create.loca.lt//api/attendance', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
