@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "homepage": "https://github.com/hl9082/Attendance-tracker",
   "scripts": {
     "start": "npm run start --workspace frontend",
     "start-backend": "npm run start --workspace backend"
