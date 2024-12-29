@@ -1,7 +1,7 @@
 // src/components/FacialRecognition.js
 
 import React, { useState, useRef } from 'react';
-import { startCamera, stopCamera, captureImage } from '../utils/getUserMedia';  // Import functions
+import { startCamera, stopCamera, captureImage } from '../utils/getUserMedia';  // Import functions from getUserMedia.js
 
 function FaceRecognition({ onSuccess }) {
   const [image, setImage] = useState(null);
@@ -10,7 +10,7 @@ function FaceRecognition({ onSuccess }) {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
 
-  // Function to handle image upload from file input
+  // Handle image file selection
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file && file.type.startsWith('image/')) {
@@ -20,29 +20,29 @@ function FaceRecognition({ onSuccess }) {
     }
   };
 
-  // Start camera feed using the imported startCamera function
+  // Start the camera using the startCamera function
   const handleStartCamera = async () => {
     await startCamera(videoRef, setIsCameraActive);
   };
 
-  // Capture image from the video feed using the imported captureImage function
+  // Capture image from video feed using the captureImage function
   const handleCaptureImage = () => {
     captureImage(videoRef, canvasRef, setImage);
   };
 
-  // Stop the camera feed using the imported stopCamera function
+  // Stop the camera feed using the stopCamera function
   const handleStopCamera = () => {
     stopCamera(videoRef, setIsCameraActive);
   };
 
-  // Handle form submission (send captured image to the server)
+  // Handle form submission (send the captured/uploaded image to the backend)
   const handleSubmit = async () => {
     if (!image) {
       alert('Please capture or upload an image!');
       return;
     }
 
-    setLoading(true); // Start loading
+    setLoading(true); // Start loading state
 
     const formData = new FormData();
     formData.append('image', image);
@@ -70,7 +70,7 @@ function FaceRecognition({ onSuccess }) {
       console.error('Error during facial recognition:', error);
       alert('An error occurred during facial recognition.');
     } finally {
-      setLoading(false); // Stop loading
+      setLoading(false); // Stop loading state
     }
   };
 
