@@ -1,6 +1,7 @@
 // src/components/FacialRecognition.js
 
 import React, { useState, useRef } from 'react';
+import { startCamera, stopCamera, captureImage } from '../utils/getUserMedia';  // Import functions
 
 function FaceRecognition({ onSuccess }) {
   const [image, setImage] = useState(null);
@@ -19,42 +20,19 @@ function FaceRecognition({ onSuccess }) {
     }
   };
 
-  // Start camera feed
-  const startCamera = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'user' }, // Front-facing camera
-      });
-      videoRef.current.srcObject = stream;
-      setIsCameraActive(true);
-    } catch (err) {
-      console.error('Error accessing camera:', err);
-      alert('Could not access the camera.');
-    }
+  // Start camera feed using the imported startCamera function
+  const handleStartCamera = async () => {
+    await startCamera(videoRef, setIsCameraActive);
   };
 
-  // Capture an image from the video feed
-  const captureImage = () => {
-    if (videoRef.current && canvasRef.current) {
-      const video = videoRef.current;
-      const canvas = canvasRef.current;
-      const context = canvas.getContext('2d');
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      context.drawImage(video, 0, 0, canvas.width, canvas.height);
-      const capturedImage = canvas.toDataURL('image/jpeg');
-      setImage(capturedImage);
-    }
+  // Capture image from the video feed using the imported captureImage function
+  const handleCaptureImage = () => {
+    captureImage(videoRef, canvasRef, setImage);
   };
 
-  // Stop the camera feed
-  const stopCamera = () => {
-    if (videoRef.current && videoRef.current.srcObject) {
-      const stream = videoRef.current.srcObject;
-      const tracks = stream.getTracks();
-      tracks.forEach(track => track.stop());
-    }
-    setIsCameraActive(false);
+  // Stop the camera feed using the imported stopCamera function
+  const handleStopCamera = () => {
+    stopCamera(videoRef, setIsCameraActive);
   };
 
   // Handle form submission (send captured image to the server)
@@ -102,7 +80,7 @@ function FaceRecognition({ onSuccess }) {
 
       {/* Camera Feed or Image Upload */}
       {!isCameraActive && (
-        <button onClick={startCamera}>Start Camera</button>
+        <button onClick={handleStartCamera}>Start Camera</button>
       )}
       {isCameraActive && (
         <div>
@@ -113,8 +91,8 @@ function FaceRecognition({ onSuccess }) {
             height="auto"
             style={{ border: '1px solid black' }}
           ></video>
-          <button onClick={captureImage}>Capture Image</button>
-          <button onClick={stopCamera}>Stop Camera</button>
+          <button onClick={handleCaptureImage}>Capture Image</button>
+          <button onClick={handleStopCamera}>Stop Camera</button>
         </div>
       )}
 
