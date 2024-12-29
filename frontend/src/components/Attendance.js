@@ -21,6 +21,13 @@ function Attendance({ token }) {
     if (!token) {
       alert('Please login to mark attendance.');
     }
+
+     // Fetch attendance data from the backend (use your Localtunnel URL here)
+    fetch('https://seven-llamas-wear.loca.lt/api/attendance') // Replace with your Localtunnel URL
+      .then((response) => response.json())
+      .then((data) => setAttendanceList(data))
+      .catch((error) => console.error('Error fetching attendance:', error));
+
   }, [token]); // Dependency on token - runs only when token changes
 
   // Handle name input change
@@ -43,19 +50,33 @@ function Attendance({ token }) {
         id: Date.now(),
       };
 
-      const updatedAttendanceList = [...attendanceList, newAttendance];
-      setAttendanceList(updatedAttendanceList);
+      // Send the new attendance to the backend
+      fetch('https://seven-llamas-wear.loca.lt/api/attendance', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`, // Add token for authentication (if required)
+        },
+        body: JSON.stringify(newAttendance),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          // Add the new attendance to the local state and localStorage
+          setAttendanceList((prevList) => [...prevList, data]);
+          localStorage.setItem('attendance', JSON.stringify([...attendanceList, data]));
 
-      // Persist updated attendance to localStorage
-      localStorage.setItem('attendance', JSON.stringify(updatedAttendanceList));
-
-      // Clear the input fields
-      setName('');
-      setAttendanceDate('');
+          // Clear input fields
+          setName('');
+          setAttendanceDate('');
+        })
+        .catch((error) => console.error('Error posting attendance:', error));
     } else {
       alert('Please enter valid information.');
     }
   };
+
+  
+
 
   // Delete an attendance record
   const handleDelete = (id) => {
