@@ -7,7 +7,6 @@ import React, { useState, useEffect } from 'react';
 import './Attendance.css'; // Add your custom styles
 
 function Attendance({ token }) {
-  // Initialize state for attendance list from localStorage or an empty array
   const [attendanceList, setAttendanceList] = useState(() => {
     const savedAttendance = localStorage.getItem('attendance');
     return savedAttendance ? JSON.parse(savedAttendance) : [];
@@ -16,31 +15,26 @@ function Attendance({ token }) {
   const [name, setName] = useState('');
   const [attendanceDate, setAttendanceDate] = useState('');
 
-    // UseEffect to react to token changes (for example, you might want to fetch something when token changes)
   useEffect(() => {
     if (!token) {
       alert('Please login to mark attendance.');
     }
 
-     // Fetch attendance data from the backend (use your Localtunnel URL here)
-    fetch('https://questionmark.loca.lt/api/attendance') // Replace with your Localtunnel URL
+    // Fetch attendance data from the backend
+    fetch('https://questionmark.loca.lt/api/attendance') // Use your Localtunnel URL
       .then((response) => response.json())
       .then((data) => setAttendanceList(data))
       .catch((error) => console.error('Error fetching attendance:', error));
+  }, [token]);
 
-  }, [token]); // Dependency on token - runs only when token changes
-
-  // Handle name input change
   const handleNameChange = (event) => {
     setName(event.target.value);
   };
 
-  // Handle date input change
   const handleDateChange = (event) => {
     setAttendanceDate(event.target.value);
   };
 
-  // Submit the new attendance record
   const handleSubmit = (event) => {
     event.preventDefault();
     if (name && attendanceDate) {
@@ -59,31 +53,33 @@ function Attendance({ token }) {
         },
         body: JSON.stringify(newAttendance),
       })
-        .then((response) => response.json())
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error('Failed to post attendance');
+          }
+          return response.json();
+        })
         .then((data) => {
-          // Add the new attendance to the local state and localStorage
-          setAttendanceList((prevList) => [...prevList, data]);
-          localStorage.setItem('attendance', JSON.stringify([...attendanceList, data]));
-
-          // Clear input fields
+          setAttendanceList((prevList) => {
+            const updatedList = [...prevList, data];
+            localStorage.setItem('attendance', JSON.stringify(updatedList));
+            return updatedList;
+          });
           setName('');
           setAttendanceDate('');
         })
-        .catch((error) => console.error('Error posting attendance:', error));
+        .catch((error) => {
+          console.error('Error posting attendance:', error);
+          alert('Error submitting attendance. Please try again later.');
+        });
     } else {
       alert('Please enter valid information.');
     }
   };
 
-  
-
-
-  // Delete an attendance record
   const handleDelete = (id) => {
     const updatedAttendance = attendanceList.filter((attendance) => attendance.id !== id);
     setAttendanceList(updatedAttendance);
-
-    // Persist updated attendance to localStorage
     localStorage.setItem('attendance', JSON.stringify(updatedAttendance));
   };
 
@@ -131,4 +127,5 @@ function Attendance({ token }) {
 }
 
 export default Attendance;
+
 
