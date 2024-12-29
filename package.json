@@ -6,7 +6,9 @@
   "homepage": "https://github.com/hl9082/Attendance-tracker",
   "scripts": {
     "start": "npm run start --workspace frontend",
-    "start-backend": "npm run start --workspace backend"
+    "start-backend": "npm run start --workspace backend",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "keywords": [],
   "workspaces": [
