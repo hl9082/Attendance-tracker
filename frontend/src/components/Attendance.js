@@ -18,10 +18,11 @@ function Attendance({ token }) {
   useEffect(() => {
     if (!token) {
       alert('Please login to mark attendance.');
+      return;  // Prevent fetching attendance if not logged in
     }
 
     // Fetch attendance data from the backend
-    fetch('http://localhost:5000/api/attendance') // Use your Localtunnel URL
+    fetch('http://localhost:3000/api/attendance') // Use your Localtunnel URL
       .then((response) => response.json())
       .then((data) => setAttendanceList(data))
       .catch((error) => console.error('Error fetching attendance:', error));
@@ -45,7 +46,7 @@ function Attendance({ token }) {
       };
 
       // Send the new attendance to the backend
-      fetch('http://localhost:5000/api/attendance', {
+      fetch('http://localhost:3000/api/attendance', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
