@@ -11,6 +11,7 @@
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build"
   },
+  "proxy": "http://localhost:5000",
   "keywords": [],
   "author": "Huy Le",
   "license": "ISC",
@@ -19,6 +20,7 @@
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@fingerprintjs/fingerprintjs": "^4.5.1",
     "axios": "^1.7.9",
+    "cors": "^2.8.5",
     "face-api.js": "^0.20.0",
     "fingerprintjs": "^0.5.3",
     "frontend": "file:",
