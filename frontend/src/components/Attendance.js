@@ -49,7 +49,7 @@ function Attendance({ token }) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          //Authorization: `Bearer ${token}`, // Add token for authentication (if required)
+          Authorization: `Bearer ${token}`, // Add token for authentication (if required)
         },
         body: JSON.stringify(newAttendance),
       })
