@@ -169,7 +169,10 @@ const chooseDataEntryMethod = () => {
 chooseDataEntryMethod();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:3000',  // Change this URL if your frontend is running elsewhere
+  methods: ['GET', 'POST'], // Allow necessary HTTP methods
+}));
 app.use(bodyParser.json());
 
 // Root route for a simple welcome message
