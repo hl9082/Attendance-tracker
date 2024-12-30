@@ -3,42 +3,23 @@
  * @author Huy Le
  * @description attendance page
  */
-import React, { useState, useEffect } from 'react';
-import './Attendance.css';
+import React, { useState } from 'react';
+import './Attendance.css'; // Add your custom styles
 
 function Attendance({ token }) {
-  // Initial state for attendance data
-  const [attendanceList, setAttendanceList] = useState([]);
   const [name, setName] = useState('');
   const [attendanceDate, setAttendanceDate] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
+  const [attendanceList, setAttendanceList] = useState([]); // Only save the local list of attendance
+  const [errorMessage, setErrorMessage] = useState(''); // To show any error messages
 
-  // Fetch attendance data on initial render
-  useEffect(() => {
-    if (!token) {
-      setErrorMessage('Please login to mark attendance.');
-      return;
-    }
+  const handleNameChange = (event) => {
+    setName(event.target.value);
+  };
 
-    // Fetch attendance data from the backend
-    fetch('http://localhost:3000/api/attendance', {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((response) => response.json())
-      .then((data) => setAttendanceList(data))
-      .catch((error) => {
-        console.error('Error fetching attendance:', error);
-        setErrorMessage('Error fetching attendance data.');
-      });
-  }, [token]);
+  const handleDateChange = (event) => {
+    setAttendanceDate(event.target.value);
+  };
 
-  // Form input handlers
-  const handleNameChange = (event) => setName(event.target.value);
-  const handleDateChange = (event) => setAttendanceDate(event.target.value);
-
-  // Handle form submission
   const handleSubmit = (event) => {
     event.preventDefault();
 
@@ -49,30 +30,26 @@ function Attendance({ token }) {
 
     const newAttendance = { name, date: attendanceDate };
 
-    // Send the new attendance to the backend
+    // Send the new attendance to the backend (without fetching the list)
     fetch('http://localhost:3000/api/attendance', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,  // Send token for authentication
+        'Authorization': `Bearer ${token}`, // Ensure the token is passed for authentication
       },
       body: JSON.stringify(newAttendance),
     })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('Failed to post attendance');
-        }
-        return response.json();
-      })
+      .then((response) => response.json())
       .then((data) => {
-        // Add the new attendance to the state
-        setAttendanceList((prevList) => {
-          const updatedList = [...prevList, data];
-          return updatedList;  // Update the list with the new attendance
-        });
-        setName('');
-        setAttendanceDate('');
-        setErrorMessage('');  // Clear any error messages
+        if (data.message) {
+          setErrorMessage(data.message); // Handle backend errors (e.g., invalid data)
+        } else {
+          // Update local state with new attendance record
+          setAttendanceList((prevList) => [...prevList, data]);
+          setName(''); // Clear name input field
+          setAttendanceDate(''); // Clear date input field
+          setErrorMessage(''); // Clear error message
+        }
       })
       .catch((error) => {
         console.error('Error posting attendance:', error);
@@ -80,18 +57,14 @@ function Attendance({ token }) {
       });
   };
 
-  // Handle delete operation
   const handleDelete = (id) => {
     const updatedAttendance = attendanceList.filter((attendance) => attendance.id !== id);
     setAttendanceList(updatedAttendance);
-     localStorage.setItem('attendance', JSON.stringify(updatedAttendance));
   };
 
   return (
     <div className="attendance-container">
       <h2 className="attendance-title">Mark Attendance</h2>
-      
-      {errorMessage && <p className="error-message">{errorMessage}</p>}
 
       <form className="attendance-form" onSubmit={handleSubmit}>
         <input
@@ -114,23 +87,21 @@ function Attendance({ token }) {
         </button>
       </form>
 
+      {errorMessage && <p className="error-message">{errorMessage}</p>}
+
       <h3 className="attendance-list-title">Attendance Records:</h3>
       <ul className="attendance-list">
-        {attendanceList.length === 0 ? (
-          <li>No attendance records yet.</li>
-        ) : (
-          attendanceList.map((attendance) => (
-            <li key={attendance.id} className="attendance-item">
-              <span>{attendance.name} - {attendance.date}</span>
-              <button
-                className="delete-button"
-                onClick={() => handleDelete(attendance.id)}
-              >
-                Delete
-              </button>
-            </li>
-          ))
-        )}
+        {attendanceList.map((attendance) => (
+          <li key={attendance.id} className="attendance-item">
+            <span>{attendance.name} - {attendance.date}</span>
+            <button
+              className="delete-button"
+              onClick={() => handleDelete(attendance.id)}
+            >
+              Delete
+            </button>
+          </li>
+        ))}
       </ul>
     </div>
   );
