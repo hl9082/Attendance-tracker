@@ -7,7 +7,7 @@ import React, { useState, useEffect } from 'react';
 import './Attendance.css'; // Add your custom styles
 
 function Attendance({ token }) {
-  const [attendanceList, setAttendanceList] = useState(([]) => {
+  const [attendanceList, setAttendanceList] = useState(() => {
     const savedAttendance = localStorage.getItem('attendance');
     return savedAttendance ? JSON.parse(savedAttendance) : [];
   });
@@ -24,8 +24,17 @@ function Attendance({ token }) {
     // Fetch attendance data from the backend
     fetch('http://localhost:3000/api/attendance') // Use your Localtunnel URL
       .then((response) => response.json())
-      .then((data) => setAttendanceList(data))
+      .then((data) => {
+        // Ensure the response is an array
+        if (Array.isArray(data)) {
+          setAttendanceList(data);
+        } else {
+          console.error('Received data is not an array:', data);
+          setAttendanceList([]);  // Reset to empty array if data is not valid
+        }
+      })
       .catch((error) => console.error('Error fetching attendance:', error));
+      setAttendanceList([]);  // Reset to empty array in case of an error
   }, [token]);
 
   const handleNameChange = (event) => {
@@ -113,17 +122,21 @@ function Attendance({ token }) {
 
       <h3 className="attendance-list-title">Attendance Records:</h3>
       <ul className="attendance-list">
-        {attendanceList.map((attendance) => (
-          <li key={attendance.id} className="attendance-item">
-            <span>{attendance.name} - {attendance.date}</span>
-            <button
-              className="delete-button"
-              onClick={() => handleDelete(attendance.id)}
-            >
-              Delete
-            </button>
-          </li>
-        ))}
+      {attendanceList.length > 0 ? (
+          attendanceList.map((attendance) => (
+            <li key={attendance.id} className="attendance-item">
+              <span>{attendance.name} - {attendance.date}</span>
+              <button
+                className="delete-button"
+                onClick={() => handleDelete(attendance.id)}
+              >
+                Delete
+              </button>
+            </li>
+          ))
+        ) : (
+          <li>No attendance records available</li>
+        )}
       </ul>
     </div>
   );
