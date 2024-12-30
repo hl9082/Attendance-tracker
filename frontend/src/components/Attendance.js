@@ -84,6 +84,7 @@ function Attendance({ token }) {
   const handleDelete = (id) => {
     const updatedAttendance = attendanceList.filter((attendance) => attendance.id !== id);
     setAttendanceList(updatedAttendance);
+     localStorage.setItem('attendance', JSON.stringify(updatedAttendance));
   };
 
   return (
