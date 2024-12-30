@@ -1,39 +1,121 @@
 const express = require('express');
 const cors = require('cors');
-const { Attendance } = require('./models/Attendance');  // Import Attendance model from Sequelize
+const { Sequelize } = require('sequelize');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+const User = require('./models/User');
+const Attendance = require('./models/Attendance');
+const dotenv = require('dotenv');
+
+dotenv.config();
+
 const app = express();
 
-// Use CORS for cross-origin requests
+// Middleware
 app.use(cors());
+app.use(express.json()); // Parse JSON bodies
 
-// For parsing JSON bodies
-app.use(express.json());
+// Middleware to verify JWT token
+const authenticate = (req, res, next) => {
+  const token = req.header('Authorization');
 
-// Simple root route to check if server is running
-app.get('/', (req, res) => {
-  res.send('Welcome to the Attendance API!');
+  if (!token) return res.status(401).json({ message: 'Access denied' });
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded;
+    next();
+  } catch (error) {
+    return res.status(400).json({ message: 'Invalid token' });
+  }
+};
+
+// Clock-in Route
+app.post('/clock-in', authenticate, async (req, res) => {
+  const { biometricData } = req.body; // Biometric data from client
+
+  try {
+    const user = await User.findByPk(req.user.userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const isBiometricValid = await bcrypt.compare(biometricData, user.biometrics);
+    if (!isBiometricValid) {
+      return res.status(400).json({ message: 'Biometric verification failed' });
+    }
+
+    // Create attendance record for clock-in
+    const attendance = await Attendance.create({
+      userId: user.id,  // Set user ID from JWT token
+      status: 'Present',  // Clock-in status: Present, Late, etc.
+      time_in: new Date(),  // Set current time as clock-in time
+    });
+
+    res.status(201).json({ message: 'Clock-in recorded', attendance });
+  } catch (error) {
+    res.status(500).json({ message: 'Error clocking in', error });
+  }
+});
+
+// Clock-out Route
+app.post('/clock-out', authenticate, async (req, res) => {
+  const { biometricData } = req.body; // Biometric data from client
+
+  try {
+    const user = await User.findByPk(req.user.userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const isBiometricValid = await bcrypt.compare(biometricData, user.biometrics);
+    if (!isBiometricValid) {
+      return res.status(400).json({ message: 'Biometric verification failed' });
+    }
+
+    // Find the most recent attendance record for this user (clock-in without clock-out yet)
+    const attendance = await Attendance.findOne({
+      where: { userId: user.id, time_out: null },
+      order: [['time_in', 'DESC']],
+    });
+
+    if (!attendance) {
+      return res.status(400).json({ message: 'No clock-in found for user' });
+    }
+
+    // Update the attendance record with clock-out time
+    attendance.time_out = new Date();
+    attendance.status = 'Present'; // You can modify status based on business logic (e.g., Late)
+    await attendance.save();
+
+    res.status(200).json({ message: 'Clock-out recorded', attendance });
+  } catch (error) {
+    res.status(500).json({ message: 'Error clocking out', error });
+  }
 });
 
 // Endpoint to register attendance (POST)
 app.post('/attendance', async (req, res) => {
-  const { student_id, status } = req.body; // Assuming student_id and status are sent in the request body
+  const { name, date } = req.body; // Name and Date sent from frontend
 
-  if (!student_id || !status) {
-    return res.status(400).json({ success: false, message: 'Missing required fields' });
-  }
-
-  // Validating the status input
-  if (!['Present', 'Absent', 'Late'].includes(status)) {
-    return res.status(400).json({ success: false, message: 'Invalid status. Must be Present, Absent, or Late' });
+  if (!name || !date) {
+    return res.status(400).json({ success: false, message: 'Name and Date are required' });
   }
 
   try {
-    // Creating an attendance record linked to the student_id
+    const user = await User.findOne({ where: { name } });
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
     const attendanceRecord = await Attendance.create({
-      student_id: student_id, // The student_id is linked to a user in the database
-      status: status,         // The attendance status: Present, Absent, or Late
-      date: new Date(),       // Automatically set the current date
-      time_in: new Date(),    // Automatically set the current time for time_in
+      userId: user.id,  // Link attendance to user
+      status: 'Present', // Default status, could be adjusted
+      date: new Date(date),  // Use the passed date
+      time_in: new Date(),  // Current time as clock-in time
     });
 
     return res.status(200).json({
@@ -54,7 +136,7 @@ app.post('/attendance', async (req, res) => {
 // Endpoint to fetch all attendance records (GET)
 app.get('/attendance', async (req, res) => {
   try {
-    const attendanceRecords = await Attendance.findAll();  // Fetch all attendance records from the database
+    const attendanceRecords = await Attendance.findAll(); // Fetch all attendance records
 
     return res.status(200).json({
       success: true,
@@ -70,9 +152,33 @@ app.get('/attendance', async (req, res) => {
   }
 });
 
+// Test the SQLite connection
+const sequelize = new Sequelize({
+  dialect: 'sqlite',
+  storage: 'database.sqlite', // SQLite database file
+});
+
+sequelize.authenticate()
+  .then(() => {
+    console.log('SQLite database connected successfully');
+  })
+  .catch((err) => {
+    console.error('Unable to connect to the SQLite database:', err);
+  });
+
+// Sync models (create tables if they don't exist)
+sequelize.sync({ force: false })  // Set force: false to avoid dropping the tables every time
+  .then(() => {
+    console.log('Database tables created/verified.');
+  })
+  .catch((err) => {
+    console.error('Error syncing database:', err);
+  });
+
 // Start the server
 const PORT = 3000;
 app.listen(PORT, () => {
   console.log(`Server is running at http://localhost:${PORT}`);
 });
+
 
