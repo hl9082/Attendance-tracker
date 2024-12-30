@@ -12,7 +12,10 @@ dotenv.config();
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:3000',  // Change this URL if your frontend is running elsewhere
+  methods: ['GET', 'POST'], // Allow necessary HTTP methods
+}));
 app.use(express.json()); // Parse JSON bodies
 
 // Middleware to verify JWT token
