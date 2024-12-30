@@ -6,6 +6,8 @@
   "homepage": "https://github.com/hl9082/Attendance-tracker",
   "scripts": {
     "start": "concurrently \"npm run server\" \"npm run client\"",
+    "client": "react-scripts start",
+    "server": "node app.js",
     "start-backend": "npm run start --workspace backend",
     "build": "react-scripts build",
     "test": "react-scripts test",
