@@ -21,7 +21,7 @@ function Attendance({ token }) {
     }
 
     // Fetch attendance data from the backend
-    fetch('https://questionmark.loca.lt/api/attendance') // Use your Localtunnel URL
+    fetch('http://localhost:5000/api/attendance') // Use your Localtunnel URL
       .then((response) => response.json())
       .then((data) => setAttendanceList(data))
       .catch((error) => console.error('Error fetching attendance:', error));
@@ -45,11 +45,11 @@ function Attendance({ token }) {
       };
 
       // Send the new attendance to the backend
-      fetch('https://questionmark.loca.lt/api/attendance', {
+      fetch('http://localhost:5000/api/attendance', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`, // Add token for authentication (if required)
+          //Authorization: `Bearer ${token}`, // Add token for authentication (if required)
         },
         body: JSON.stringify(newAttendance),
       })
