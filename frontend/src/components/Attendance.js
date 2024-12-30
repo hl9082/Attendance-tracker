@@ -84,6 +84,30 @@ function Attendance({ token }) {
     localStorage.setItem('attendance', JSON.stringify(updatedAttendance));
   };
 
+const markAttendance = async () => {
+  try {
+    const response = await fetch('http://localhost:5000/api/attendance/clock-in', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        biometricData: 'someBiometricData', // Replace this with real data
+      }),
+    });
+
+    const data = await response.json();
+    if (response.ok) {
+      console.log('Attendance marked:', data);
+    } else {
+      console.error('Failed to mark attendance:', data);
+    }
+  } catch (error) {
+    console.error('Error marking attendance:', error);
+  }
+};
+
+
   return (
     <div className="attendance-container">
       <h2 className="attendance-title">Mark Attendance</h2>
