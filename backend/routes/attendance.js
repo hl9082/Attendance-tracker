@@ -22,6 +22,17 @@ const authenticate = (req, res, next) => {
   }
 };
 
+// Route to fetch all attendance records
+router.get('/', async (_req, res) => {
+  try {
+    const attendance = await Attendance.findAll();
+    res.status(200).json(attendance);
+  } catch (error) {
+    console.error('Error fetching attendance:', error);
+    res.status(500).json({ message: 'Error fetching attendance' });
+  }
+});
+
 // Clock-in
 router.post('/clock-in', authenticate, async (req, res) => {
   const { biometricData } = req.body;  // This assumes the client sends biometric data (fingerprint/face recognition)
