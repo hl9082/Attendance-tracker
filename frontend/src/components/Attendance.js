@@ -4,100 +4,93 @@
  * @description attendance page
  */
 import React, { useState, useEffect } from 'react';
-import './Attendance.css'; // Add your custom styles
+import './Attendance.css';
 
 function Attendance({ token }) {
-  const [attendanceList, setAttendanceList] = useState(() => {
-    const savedAttendance = localStorage.getItem('attendance');
-    return savedAttendance ? JSON.parse(savedAttendance) : [];
-  });
-
+  // Initial state for attendance data
+  const [attendanceList, setAttendanceList] = useState([]);
   const [name, setName] = useState('');
   const [attendanceDate, setAttendanceDate] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
+  // Fetch attendance data on initial render
   useEffect(() => {
     if (!token) {
-      alert('Please login to mark attendance.');
-      return;  // Prevent fetching attendance if not logged in
+      setErrorMessage('Please login to mark attendance.');
+      return;
     }
 
     // Fetch attendance data from the backend
-    fetch('http://localhost:3000/api/attendance') // Use your Localtunnel URL
+    fetch('http://localhost:3000/api/attendance', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
       .then((response) => response.json())
-      .then((data) => {
-        // Ensure the response is an array
-        if (Array.isArray(data)) {
-          setAttendanceList(data);
-        } else {
-          console.error('Received data is not an array:', data);
-          setAttendanceList([]);  // Reset to empty array if data is not valid
-        }
-      })
-      .catch((error) => console.error('Error fetching attendance:', error));
-      setAttendanceList([]);  // Reset to empty array in case of an error
+      .then((data) => setAttendanceList(data))
+      .catch((error) => {
+        console.error('Error fetching attendance:', error);
+        setErrorMessage('Error fetching attendance data.');
+      });
   }, [token]);
 
-  const handleNameChange = (event) => {
-    setName(event.target.value);
-  };
+  // Form input handlers
+  const handleNameChange = (event) => setName(event.target.value);
+  const handleDateChange = (event) => setAttendanceDate(event.target.value);
 
-  const handleDateChange = (event) => {
-    setAttendanceDate(event.target.value);
-  };
-
+  // Handle form submission
   const handleSubmit = (event) => {
     event.preventDefault();
-    if (name && attendanceDate) {
-      const newAttendance = {
-        name: name,
-        date: attendanceDate,
-        id: Date.now(),
-      };
 
-      // Send the new attendance to the backend
-      fetch('http://localhost:3000/api/attendance', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`, // Add token for authentication (if required)
-        },
-        body: JSON.stringify(newAttendance),
-      })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error('Failed to post attendance');
-          }
-          return response.json();
-        })
-        .then((data) => {
-          setAttendanceList((prevList) => {
-            const updatedList = [...prevList, data];
-            localStorage.setItem('attendance', JSON.stringify(updatedList));
-            return updatedList;
-          });
-          setName('');
-          setAttendanceDate('');
-        })
-        .catch((error) => {
-          console.error('Error posting attendance:', error);
-          alert('Error submitting attendance. Please try again later.');
-        });
-    } else {
-      alert('Please enter valid information.');
+    if (!name || !attendanceDate) {
+      setErrorMessage('Please enter valid information.');
+      return;
     }
+
+    const newAttendance = { name, date: attendanceDate };
+
+    // Send the new attendance to the backend
+    fetch('http://localhost:3000/api/attendance', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,  // Send token for authentication
+      },
+      body: JSON.stringify(newAttendance),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Failed to post attendance');
+        }
+        return response.json();
+      })
+      .then((data) => {
+        // Add the new attendance to the state
+        setAttendanceList((prevList) => {
+          const updatedList = [...prevList, data];
+          return updatedList;  // Update the list with the new attendance
+        });
+        setName('');
+        setAttendanceDate('');
+        setErrorMessage('');  // Clear any error messages
+      })
+      .catch((error) => {
+        console.error('Error posting attendance:', error);
+        setErrorMessage('Error submitting attendance. Please try again later.');
+      });
   };
 
+  // Handle delete operation
   const handleDelete = (id) => {
     const updatedAttendance = attendanceList.filter((attendance) => attendance.id !== id);
     setAttendanceList(updatedAttendance);
-    localStorage.setItem('attendance', JSON.stringify(updatedAttendance));
   };
-
-
 
   return (
     <div className="attendance-container">
       <h2 className="attendance-title">Mark Attendance</h2>
+      
+      {errorMessage && <p className="error-message">{errorMessage}</p>}
 
       <form className="attendance-form" onSubmit={handleSubmit}>
         <input
@@ -122,7 +115,9 @@ function Attendance({ token }) {
 
       <h3 className="attendance-list-title">Attendance Records:</h3>
       <ul className="attendance-list">
-      {attendanceList.length > 0 ? (
+        {attendanceList.length === 0 ? (
+          <li>No attendance records yet.</li>
+        ) : (
           attendanceList.map((attendance) => (
             <li key={attendance.id} className="attendance-item">
               <span>{attendance.name} - {attendance.date}</span>
@@ -134,8 +129,6 @@ function Attendance({ token }) {
               </button>
             </li>
           ))
-        ) : (
-          <li>No attendance records available</li>
         )}
       </ul>
     </div>
@@ -143,5 +136,3 @@ function Attendance({ token }) {
 }
 
 export default Attendance;
-
-
