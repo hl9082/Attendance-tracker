@@ -7,7 +7,7 @@
   "scripts": {
     "start": "concurrently \"npm run server\" \"npm run client\"",
     "client": "cd frontend && npm start",
-    "server": "node app.js",
+    "server": "cd backend && node app.js",
     "start-backend": "npm run start --workspace backend",
     "build": "react-scripts build",
     "test": "react-scripts test",
