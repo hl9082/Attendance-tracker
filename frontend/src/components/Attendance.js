@@ -7,7 +7,7 @@ import React, { useState, useEffect } from 'react';
 import './Attendance.css'; // Add your custom styles
 
 function Attendance({ token }) {
-  const [attendanceList, setAttendanceList] = useState(() => {
+  const [attendanceList, setAttendanceList] = useState(([]) => {
     const savedAttendance = localStorage.getItem('attendance');
     return savedAttendance ? JSON.parse(savedAttendance) : [];
   });
