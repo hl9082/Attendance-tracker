@@ -137,7 +137,7 @@ app.post('/attendance', async (req, res) => {
 });
 
 // Endpoint to fetch all attendance records (GET)
-app.get('/attendance', async (req, res) => {
+app.get('/attendance', async (_req, res) => {
   try {
     const attendanceRecords = await Attendance.findAll(); // Fetch all attendance records
 
